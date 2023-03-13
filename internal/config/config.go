@@ -26,7 +26,7 @@ type Config struct {
 }
 
 func LoadConfig() (*Config, error) {
-	data, err := ioutil.ReadFile("config/app.yaml")
+	data, err := ioutil.ReadFile("internal/config/app.yaml")
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %v", err)
 	}

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	models "rudderstack/api/models"
+	models "rudderstack/internal/api/v1/models"
 
 	"gorm.io/gorm"
 )
@@ -21,11 +21,11 @@ func NewEventRepository(db *gorm.DB) *EventRepository {
 
 // GetAllEvents returns a slice of all events with pagination.
 func (r *EventRepository) GetAllEvents(limit, offset int) ([]*models.Event, int64, error) {
-	var events []*models.Event
+	events := make([]*models.Event, 0)
 	var total int64
 
 	// Get the total number of tracking plans
-	if err := r.db.Model(&models.TrackingPlan{}).Count(&total).Error; err != nil {
+	if err := r.db.Model(&models.Event{}).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -37,7 +37,7 @@ func (r *EventRepository) GetAllEvents(limit, offset int) ([]*models.Event, int6
 
 // GetEventByID retrieves a single event by ID from the repository.
 func (r *EventRepository) GetEventByID(id int64) (*models.Event, error) {
-	var event *models.Event
+	event := new(models.Event)
 	result := r.db.First(&event, id)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return event, fmt.Errorf("No event rule found for name %d", id)
@@ -47,7 +47,7 @@ func (r *EventRepository) GetEventByID(id int64) (*models.Event, error) {
 
 // GetEventByName retrieves a single event by name from the repository.
 func (r *EventRepository) GetEventByName(name string) (*models.Event, error) {
-	var event *models.Event
+	event := new(models.Event)
 	result := r.db.Table(event.TableName()).Where("name = ?", name).First(&event)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return event, fmt.Errorf("No event rule found for name '%s'", name)
@@ -55,9 +55,28 @@ func (r *EventRepository) GetEventByName(name string) (*models.Event, error) {
 	return event, result.Error
 }
 
+// GetEventByName retrieves a single event by name from the repository.
+func (r *EventRepository) GetAllEventsByEventRule(name string, limit, offset int) ([]*models.Event, int64, error) {
+	events := make([]*models.Event, 0)
+	var total int64
+
+	// Get the total number of tracking plans
+	if err := r.db.Model(&models.Event{}).Where("name = ?", name).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if err := r.db.Model(&models.Event{}).Where(
+		"name = ?", name).Limit(limit).Offset(offset).Order(
+		"created_at DESC").Find(&events).Error; err != nil {
+		return nil, total, err
+	}
+	return events, total, nil
+}
+
+// GetEventRuleByName retrieves a single Event rule by event name from the repository.
 func (r *EventRepository) GetEventRuleByName(eventName string) (*models.EventRule, error) {
-	var eventRule *models.EventRule
-	result := r.db.Table(eventRule.TableName()).Where("name = ?", eventName).First(&eventRule)
+	eventRule := new(models.EventRule)
+	result := r.db.Model(eventRule).Where("name = ?", eventName).First(&eventRule)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return eventRule, fmt.Errorf("No event rule found for name '%s'", eventName)
 	}

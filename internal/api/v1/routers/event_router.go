@@ -1,8 +1,8 @@
 package routers
 
 import (
-	controllers "rudderstack/api/controllers"
-	repositories "rudderstack/api/repositories"
+	controllers "rudderstack/internal/api/v1/controllers"
+	repositories "rudderstack/internal/api/v1/repositories"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -17,6 +17,8 @@ func RegisterEventRoutes(routerGroup *gin.RouterGroup, db *gorm.DB) {
 		eventRoutes.GET("/", eventController.GetAllEventsHandler)
 		eventRoutes.POST("/", eventController.CreateEventHandler)
 		eventRoutes.GET("/:id", eventController.GetEventHandler)
+
 		eventRoutes.PUT("/:id", eventController.UpdateEventHandler)
+
 	}
 }

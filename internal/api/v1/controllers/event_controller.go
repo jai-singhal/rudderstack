@@ -3,9 +3,9 @@ package controllers
 import (
 	"errors"
 	"net/http"
-	models "rudderstack/api/models"
-	repositories "rudderstack/api/repositories"
-	"rudderstack/api/utils"
+	models "rudderstack/internal/api/v1/models"
+	repositories "rudderstack/internal/api/v1/repositories"
+	utils "rudderstack/internal/api/v1/utils"
 	"strconv"
 	"time"
 
@@ -20,6 +20,43 @@ type EventController struct {
 
 func NewEventController(repo *repositories.EventRepository) *EventController {
 	return &EventController{repo}
+}
+
+func (c *EventController) GetAllEventsHandler(ctx *gin.Context) {
+	limitStr := ctx.Query("limit")
+	offsetStr := ctx.Query("offset")
+	eventRule := ctx.Query("rule")
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		limit = 5 // default limit
+	}
+
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil {
+		offset = 0 // default offset
+	}
+
+	var events []*models.Event
+	var total int64
+	var err1 error
+	if len(eventRule) == 0 {
+		events, total, err1 = c.repo.GetAllEvents(limit, offset)
+	} else {
+		events, total, err1 = c.repo.GetAllEventsByEventRule(eventRule, limit, offset)
+	}
+	if err1 != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"items": events,
+		"pagination": gin.H{
+			"count": len(events),
+			"total": total,
+		},
+	})
 }
 
 func (c *EventController) GetEventHandler(ctx *gin.Context) {
@@ -42,35 +79,6 @@ func (c *EventController) GetEventHandler(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, event)
-}
-
-func (c *EventController) GetAllEventsHandler(ctx *gin.Context) {
-	limitStr := ctx.Query("limit")
-	offsetStr := ctx.Query("offset")
-
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil {
-		limit = 5 // default limit
-	}
-
-	offset, err := strconv.Atoi(offsetStr)
-	if err != nil {
-		offset = 0 // default offset
-	}
-
-	events, total, err := c.repo.GetAllEvents(limit, offset)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"items": events,
-		"pagination": gin.H{
-			"count": len(events),
-			"total": total,
-		},
-	})
 }
 
 func (c *EventController) CreateEventHandler(ctx *gin.Context) {

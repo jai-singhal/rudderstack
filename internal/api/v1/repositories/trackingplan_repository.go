@@ -3,7 +3,7 @@ package repositories
 import (
 	"errors"
 	"fmt"
-	models "rudderstack/api/models"
+	models "rudderstack/internal/api/v1/models"
 
 	"gorm.io/gorm"
 )
@@ -17,8 +17,8 @@ func NewTrackingPlanRepository(db *gorm.DB) *TrackingPlanRepository {
 	return &TrackingPlanRepository{db}
 }
 
-func (r *TrackingPlanRepository) GetAllTrackingPlans(limit, offset int) ([]models.TrackingPlan, int64, error) {
-	var trackingPlans []models.TrackingPlan
+func (r *TrackingPlanRepository) GetAllTrackingPlans(limit, offset int) ([]*models.TrackingPlan, int64, error) {
+	trackingPlans := make([]*models.TrackingPlan, 0)
 	var total int64
 
 	// Get the total number of tracking plans
@@ -27,15 +27,14 @@ func (r *TrackingPlanRepository) GetAllTrackingPlans(limit, offset int) ([]model
 	}
 
 	// Retrieve the tracking plans based on the limit and offset
-	if err := r.db.Limit(limit).Offset(offset).Order("created_at DESC").Find(&trackingPlans).Error; &err != nil {
+	if err := r.db.Model(&models.TrackingPlan{}).Limit(limit).Offset(offset).Order("created_at DESC").Find(&trackingPlans).Error; err != nil {
 		return nil, 0, err
 	}
-
 	return trackingPlans, total, nil
 }
 
 func (r *TrackingPlanRepository) GetTrackingPlanByID(id int64) (*models.TrackingPlan, error) {
-	var trackingPlan *models.TrackingPlan
+	trackingPlan := new(models.TrackingPlan)
 	result := r.db.Table(trackingPlan.TableName()).Where("id = ?", id).First(&trackingPlan)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return trackingPlan, fmt.Errorf("No Tracking plan found for id '%d'", id)

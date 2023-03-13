@@ -4,8 +4,8 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	models "rudderstack/api/models"
-	repositories "rudderstack/api/repositories"
+	models "rudderstack/internal/api/v1/models"
+	repositories "rudderstack/internal/api/v1/repositories"
 	"strconv"
 
 	"github.com/gin-gonic/gin"

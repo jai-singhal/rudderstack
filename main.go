@@ -8,10 +8,10 @@ import (
 	// "github.com/jai-singhal/rudderstack/api"
 	// "github.com/jai-singhal/rudderstack/config"
 	// "github.com/jai-singhal/rudderstack/db"
-	
-	"rudderstack/config"
-	"rudderstack/db"
-	"rudderstack/api"
+
+	"rudderstack/internal/api/v1"
+	"rudderstack/internal/config"
+	"rudderstack/internal/db"
 )
 
 func main() {
@@ -20,7 +20,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading configuration: %v", err)
 	}
-	fmt.Printf("%f", cfg)
 
 	// Connect to the database
 	dbConn, err := db.NewDatabaseConnection(cfg)

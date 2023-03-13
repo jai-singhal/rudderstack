@@ -1,8 +1,8 @@
 package routers
 
 import (
-	controllers "rudderstack/api/controllers"
-	repositories "rudderstack/api/repositories"
+	controllers "rudderstack/internal/api/v1/controllers"
+	repositories "rudderstack/internal/api/v1/repositories"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
