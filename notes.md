@@ -1,0 +1,38 @@
+
+## Correction
+```
+{
+    "tracking_plan": {
+        "display_name": "Tracking Plan",
+        "rules": {
+            "events": [
+                {
+                    "name": "Order Viewed",
+                    "description": "Whose order viewed",
+                    "rules": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "type": "object",
+                        "properties": {
+                            "product": {
+                                "type": "string"
+                            },
+                            "price": {
+                                "type": "number"
+                            },
+                            "currency": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "product",
+                            "price",
+                            "currency"
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}
+    
+```

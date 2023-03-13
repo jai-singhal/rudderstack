@@ -1,0 +1,12 @@
+# Server configuration
+server:
+  port: 8080
+  mode: debug
+
+# Database configuration
+database:
+  host: 127.0.0.1
+  port: 13306
+  user: root
+  password: root@321
+  name: rudderstack
