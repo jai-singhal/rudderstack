@@ -1,0 +1,55 @@
+version: "3"
+
+volumes:
+  rudderstack_mysql_data: {}
+  rudderstack_app_data: {}
+
+networks:
+  rudderstack_network:
+    driver: bridge
+
+services:
+  db:
+    image: mysql:latest
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root@321
+    volumes:
+      - rudderstack_mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - rudderstack_network
+
+  api:
+    image: rudderstack-go-api
+    restart: always
+    build:
+      context: .
+      dockerfile: ./compose/api/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    env_file:
+      - ./.env/.local
+    volumes:
+      - 'rudderstack_app_data:/rudderstack-api'
+    networks:
+      - rudderstack_network
+
+  app:
+    image: rudderstack-react-app
+    restart: always
+    build:
+      context: .
+      dockerfile: ./compose/app/Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./.env/.local
+    volumes:
+      - 'rudderstack_app_data:/rudderstack-app'
+    networks:
+      - rudderstack_network

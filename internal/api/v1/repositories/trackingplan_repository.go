@@ -33,6 +33,15 @@ func (r *TrackingPlanRepository) GetAllTrackingPlans(limit, offset int) ([]*mode
 	return trackingPlans, total, nil
 }
 
+func (r *TrackingPlanRepository) GetEventRulesByTrackingPlanId(tracking_plan_id int64) ([]*models.EventRule, error) {
+	eventRules := make([]*models.EventRule, 0)
+	result := r.db.Model(&models.EventRule{}).Where("tracking_plan_id = ?", tracking_plan_id).Find(&eventRules)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return eventRules, fmt.Errorf("No Event rules found for tracking_plan_id '%d'", tracking_plan_id)
+	}
+	return eventRules, result.Error
+}
+
 func (r *TrackingPlanRepository) GetTrackingPlanByID(id int64) (*models.TrackingPlan, error) {
 	trackingPlan := new(models.TrackingPlan)
 	result := r.db.Table(trackingPlan.TableName()).Where("id = ?", id).First(&trackingPlan)

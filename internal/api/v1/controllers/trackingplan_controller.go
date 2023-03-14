@@ -42,8 +42,13 @@ func (c *TrackingPlanController) GetTrackingPlanHandler(ctx *gin.Context) {
 		}
 		return
 	}
-
-	ctx.JSON(http.StatusOK, trackingPlan)
+	eventRules, err := c.repo.GetEventRulesByTrackingPlanId(id)
+	trackingPlanReturn := gin.H{
+		"id":    trackingPlan.ID,
+		"name":  trackingPlan.DisplayName,
+		"rules": eventRules,
+	}
+	ctx.JSON(http.StatusOK, trackingPlanReturn)
 }
 
 func (c *TrackingPlanController) GetAllTrackingPlansHandler(ctx *gin.Context) {
@@ -82,6 +87,7 @@ func (c *TrackingPlanController) CreateTrackingPlanHandler(ctx *gin.Context) {
 
 	trackingPlan := &models.TrackingPlan{
 		DisplayName: requestBody.TrackingPlan.DisplayName,
+		Description: requestBody.TrackingPlan.Description,
 	}
 
 	eventRules := make([]*models.EventRule, len(requestBody.TrackingPlan.Rules.Events))
@@ -129,6 +135,7 @@ func (c *TrackingPlanController) UpdateTrackingPlanHandler(ctx *gin.Context) {
 	}
 
 	trackingPlan.DisplayName = requestBody.TrackingPlan.DisplayName
+	trackingPlan.Description = requestBody.TrackingPlan.Description
 
 	eventRules := make([]*models.EventRule, len(requestBody.TrackingPlan.Rules.Events))
 	for i, event := range requestBody.TrackingPlan.Rules.Events {

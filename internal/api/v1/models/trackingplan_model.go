@@ -8,6 +8,7 @@ import (
 type TrackingPlan struct {
 	ID          int64     `json:"id"`
 	DisplayName string    `json:"display_name"`
+	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
@@ -34,6 +35,7 @@ func (EventRule) TableName() string {
 type TrackingPlanRequestBody struct {
 	TrackingPlan struct {
 		DisplayName string `json:"display_name" binding:"required"`
+		Description string `json:"description"`
 		Rules       struct {
 			Events []struct {
 				Name        string          `json:"name" binding:"required"`

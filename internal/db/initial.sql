@@ -1,15 +1,15 @@
-drop database rudderstack;
-create database rudderstack;
-use rudderstack;
+-- create database IF NOT EXISTS rudderstack ;
+-- use rudderstack;
 
-CREATE TABLE tracking_plans (
+CREATE TABLE IF NOT EXISTS tracking_plans (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     display_name VARCHAR(255) NOT NULL UNIQUE,
+    description TEXT,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE event_rules (
+CREATE TABLE IF NOT EXISTS event_rules (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   tracking_plan_id BIGINT NOT NULL,
   name VARCHAR(255) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE event_rules (
   FOREIGN KEY (tracking_plan_id) REFERENCES tracking_plans(id) ON DELETE CASCADE
 );
 
-CREATE TABLE events (
+CREATE TABLE IF NOT EXISTS events (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     properties JSON NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE events (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE event_tracking (
+CREATE TABLE IF NOT EXISTS event_tracking (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     event_id BIGINT REFERENCES events(id) ON DELETE CASCADE,
     event_rule_id BIGINT REFERENCES event_rules(id) ON DELETE CASCADE,

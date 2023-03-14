@@ -2,9 +2,10 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
+	"strconv"
 
-	"gopkg.in/yaml.v2"
+	"github.com/joho/godotenv"
 )
 
 type ServerConfig struct {
@@ -26,16 +27,39 @@ type Config struct {
 }
 
 func LoadConfig() (*Config, error) {
-	data, err := ioutil.ReadFile("internal/config/app.yaml")
+	err := godotenv.Load("./.env/.local")
 	if err != nil {
-		return nil, fmt.Errorf("failed to read config file: %v", err)
+		return nil, fmt.Errorf("failed to load .env file: %v", err)
 	}
 
-	var config Config
-	err = yaml.Unmarshal(data, &config)
+	serverPort, err := strconv.Atoi(os.Getenv("SERVER_PORT"))
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse config file: %v", err)
+		serverPort = 8080
 	}
 
-	return &config, nil
+	serverMode := os.Getenv("SERVER_MODE")
+	if serverMode == "" {
+		serverMode = "debug"
+	}
+
+	dbPort, err := strconv.Atoi(os.Getenv("DB_PORT"))
+	if err != nil {
+		dbPort = 3306
+	}
+
+	config := &Config{
+		Server: ServerConfig{
+			Port: serverPort,
+			Mode: serverMode,
+		},
+		Database: DatabaseConfig{
+			Host:     os.Getenv("DB_HOST"),
+			Port:     dbPort,
+			User:     os.Getenv("DB_USER"),
+			Password: os.Getenv("DB_PASSWORD"),
+			Name:     os.Getenv("DB_NAME"),
+		},
+	}
+
+	return config, nil
 }
