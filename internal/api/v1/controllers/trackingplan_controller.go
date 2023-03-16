@@ -45,9 +45,10 @@ func (c *TrackingPlanController) GetTrackingPlanHandler(ctx *gin.Context) {
 	}
 	eventRules, err := c.repo.GetEventRulesByTrackingPlanId(id)
 	trackingPlanReturn := gin.H{
-		"id":    trackingPlan.ID,
-		"name":  trackingPlan.DisplayName,
-		"rules": eventRules,
+		"id":          trackingPlan.ID,
+		"name":        trackingPlan.DisplayName,
+		"description": trackingPlan.Description,
+		"events":      eventRules,
 	}
 	ctx.JSON(http.StatusOK, trackingPlanReturn)
 }

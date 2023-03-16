@@ -64,7 +64,7 @@ function EventCreateModal({
 
                 <Form.Group controlId="formProperties">
                     <Form.Label>Properties</Form.Label>
-                    <Form.Control as="textarea" placeholder="Enter JSON properties" value={properties}
+                    <Form.Control as="textarea" rows={5} placeholder="Enter JSON properties" value={properties}
                         onChange={(event)=> setProperties(event.target.value)}
                         />
                 </Form.Group>

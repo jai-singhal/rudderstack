@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Header from '../Header'
 import TrackingPlanTable from './TrackingPlanTable';
-import TrackingPlanCreateModal from './TrackingPlanModal'
+import TrackingPlanModal from './TrackingPlanModal'
 import EventCreateModal from './EventModal'
 import { Container, Button } from 'react-bootstrap';
 
@@ -21,7 +21,7 @@ const TrackingPlan = () => {
       <Header head={pageTitle} description={pageDescription} />
         <Container>
           <Button onClick={() => setShowModal(true)} className="float-end">Add Tracking Plan</Button>
-          <TrackingPlanCreateModal
+          <TrackingPlanModal
               show={showModal}
               onHide={() => setShowModal(false)}
               onSubmit={(data) => {console.log(data);  refreshTable();}}

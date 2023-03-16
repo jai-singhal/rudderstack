@@ -45,3 +45,33 @@ export const getTrackingPlan = (id) => {
 		return response.data
 	});
 }
+
+export const updateTrackingPlan = async (id, data) => {
+	try {
+		const response = await axios.put(`${API_URL}/tracking-plans/${id}`, data,
+		{
+			withCredentials: true 
+		});
+		return {
+			error: null,
+			result: response.data
+		};
+	} catch (error) {
+		if (error.response) {
+			return {
+				error: error.response.data,
+				result: null
+			};
+		} else if (error.request) {
+			return {
+				error: 'No response received from server',
+				result: null
+			};
+		} else {
+			return {
+				error: 'Error in setting up request',
+				result: null
+			};
+		}
+	}
+}

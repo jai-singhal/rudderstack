@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Table } from 'react-bootstrap';
+import { Table, Button } from 'react-bootstrap';
 import { getAllTrackingPlans, getTrackingPlan } from "../../api/trackingplans"
 import EventRulesOffCanvas from './EventRulesOffCanvas';
 import Pagination from '../Pagination';
+import TrackingPlanModal from './TrackingPlanModal'
 
 const TrackingPlanTable = () => {
   const [trackingPlans, setTrackingPlans] = useState([]);
@@ -10,6 +11,7 @@ const TrackingPlanTable = () => {
   const [trackingPlanDetail, setTrackingPlanDetail] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(-1);
+  const [showTrackingPlanModalArr, setShowTrackingPlanModalArr] = useState(trackingPlans.map(() => false));
 
   const [plansPerPage] = useState(5);
 
@@ -28,7 +30,7 @@ const TrackingPlanTable = () => {
   const handleShowEventRules = async (id) => {
   	setSelectedPlanId(id);
   	const eventRules = await getTrackingPlan(id);
-  	setTrackingPlanDetail(eventRules.rules)
+  	setTrackingPlanDetail(eventRules.events)
   };
 
   const onHideEventRulesOffCanvas = () => {
@@ -44,16 +46,35 @@ const TrackingPlanTable = () => {
 			<th>S no.</th>
 			<th>Display Name</th>
 			<th>Description</th>
+			<th>Options</th>
 		  </tr>
 		</thead>
 		<tbody>
-		  {trackingPlans.map((plan, i) => (
-			<tr key={plan.id} onClick={() => handleShowEventRules(plan.id)} className="tableRowPointer">
-			  <td>{(currentPage-1)*plansPerPage + i+1}</td>
-			  <td>{plan.display_name}</td>
-			  <td>{plan.description}</td>
+		{trackingPlans.map((plan, i) => (
+			<tr key={plan.id}  className="tableRowPointer">
+				<td onClick={() => handleShowEventRules(plan.id)}>{(currentPage-1)*plansPerPage + i+1}</td>
+				<td onClick={() => handleShowEventRules(plan.id)}>{plan.display_name}</td>
+				<td onClick={() => handleShowEventRules(plan.id)}>{plan.description}</td>
+				<td>
+				<Button onClick={() => {
+					const newShowTrackingPlanModalArr = [...showTrackingPlanModalArr];
+					newShowTrackingPlanModalArr[i] = true;
+					setShowTrackingPlanModalArr(newShowTrackingPlanModalArr);
+				}}>Update</Button>
+				<TrackingPlanModal
+					show={showTrackingPlanModalArr[i]}
+					onHide={() => {
+					const newShowTrackingPlanModalArr = [...showTrackingPlanModalArr];
+					newShowTrackingPlanModalArr[i] = false;
+					setShowTrackingPlanModalArr(newShowTrackingPlanModalArr);
+					}}
+					onSubmit={(data) => {console.log(data);}}
+					isUpdate = {true} 
+					trackingPlanId = {plan.id}
+				/>
+				</td>
 			</tr>
-		  ))}
+			))}
 		</tbody>
 	  </Table>
 	  <Pagination
