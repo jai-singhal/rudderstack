@@ -6,114 +6,108 @@ import {getTrackingPlan} from "../../api/trackingplans"
 const TrackingPlanModal = ({show, onHide, onSubmit, isUpdate = false, trackingPlanId = null}) => {
 	const [name, setName] = useState('');
 	const [description, setDescription] = useState('');
-	const [initialData, setInitalData] = useState([{}, ]);
 	const [eventsData, setEventsData] = useState([{
-	name: '',
-	description: '',
-	rules: '',
+		name: '',
+		description: '',
+		rules: '',
 	}, ]);
 	const [error, setError] = useState('');
 
 	useEffect(() => {
-	if (show && isUpdate && trackingPlanId) {
-		// let trackingplan = populateInitalData()
-		getTrackingPlan(trackingPlanId).then((trackingplan) => {
-			setInitalData(trackingplan)
-			console.log("uodated", show, isUpdate, trackingplan)
-			setName(trackingplan.name);
-			setDescription(trackingplan.description);
-			// console.log( "xxx")
-			let eventsdata = []
-			trackingplan.events.map((event) => {
-				eventsdata.push({
-					name: event.name,
-					description: event.description,
-					rules: JSON.stringify(event.rules, null, 4)
+		if (show && isUpdate && trackingPlanId) {
+			getTrackingPlan(trackingPlanId).then((trackingplan) => {
+				console.log("uodated", show, isUpdate, trackingplan)
+				setName(trackingplan.name);
+				setDescription(trackingplan.description);
+				let eventsdata = []
+				trackingplan.events.map((event) => {
+					eventsdata.push({
+						name: event.name,
+						description: event.description,
+						rules: JSON.stringify(event.rules, null, 4)
+					})
+					return event;
 				})
-				return event;
+				setEventsData(eventsdata);
 			})
-			setEventsData(eventsdata);
-		})
 
-	}
+		}
 	}, [show, ]);
 
 	const handleAddEvent = () => {
 	const newEvent = [...eventsData];
-	newEvent.push({
-		name: '',
-		description: '',
-		rules: '',
-	});
-	setEventsData(newEvent);
+		newEvent.push({
+			name: '',
+			description: '',
+			rules: '',
+		});
+		setEventsData(newEvent);
 	};
 
 	const handleRemoveEventRule = () => {
-	if (eventsData.length <= 1) return false;
-	const newEvent = [...eventsData];
-	newEvent.splice(eventsData.length - 1, 1);
-	setEventsData(newEvent);
+		if (eventsData.length <= 1) return false;
+		
+		const newEvent = [...eventsData];
+		newEvent.splice(eventsData.length - 1, 1);
+		setEventsData(newEvent);
 	};
 
 	const handleSubmit = async (e) => {
-	e.preventDefault();
-	let hasError = false;
-	const newEventsData = [...eventsData];
+		e.preventDefault();
+		let hasError = false;
+		const newEventsData = [...eventsData];
 
-	newEventsData.forEach((event, i) => {
-		try {
-			JSON.parse(event.rules);
-		} catch (error) {
-			setError(`Event ${i + 1}: '${event.name}' rule is not valid json. Please correct.`);
-			hasError = true;
-		}
-	});
-
-	if (!hasError) {
-		const data = {
-			tracking_plan: {
-				display_name: name,
-				description: description,
-				rules: {
-					events: eventsData.map((event) => ({
-						name: event.name,
-						description: event.description,
-						rules: JSON.parse(event.rules),
-					})),
-				},
-			},
-		};
-
-		try {
-			let result;
-			if (isUpdate) {
-				result = await updateTrackingPlan(initialData.id, data);
-			} else {
-				result = await createTrackingPlan(data);
+		newEventsData.forEach((event, i) => {
+			try {
+				JSON.parse(event.rules);
+			} catch (error) {
+				setError(`Event ${i + 1}: '${event.name}' rule is not valid json. Please correct.`);
+				hasError = true;
 			}
-			const {
-				error
-			} = result;
-			if (error) {
-				setError(error.error);
+		});
+
+		if (!hasError) {
+			const data = {
+				tracking_plan: {
+					display_name: name,
+					description: description,
+					rules: {
+						events: eventsData.map((event) => ({
+							name: event.name,
+							description: event.description,
+							rules: JSON.parse(event.rules),
+						})),
+					},
+				},
+			};
+
+			try {
+				let result;
+				if (isUpdate) {
+					result = await updateTrackingPlan(trackingPlanId, data);
+				} else {
+					result = await createTrackingPlan(data);
+				}
+				if (result.error) {
+					setError(result.error.error);
+					return false;
+				}
+				onHide();
+				onSubmit(data);
+				setName('');
+				setError(null);
+				setDescription('');
+				setEventsData([{
+					name: '',
+					description: '',
+					rules: '',
+				}, ]);
+			} catch (error) {
+				console.error(error);
+				setError('An error occurred ' + error);
 				return false;
 			}
-			onHide();
-			onSubmit(data);
-			setName('');
-			setError(null);
-			setDescription('');
-			setEventsData([{
-				name: '',
-				description: '',
-				rules: '',
-			}, ]);
-		} catch (error) {
-			console.error(error);
-			setError('An error occurred ' + error);
-			return false;
 		}
-	}
 	};
 
   	return (
