@@ -2,7 +2,6 @@ version: "3"
 
 volumes:
   rudderstack_mysql_data: {}
-  rudderstack_app_data: {}
 
 networks:
   rudderstack_network:
@@ -18,7 +17,7 @@ services:
     volumes:
       - rudderstack_mysql_data:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - 3306
     networks:
       - rudderstack_network
 
@@ -34,8 +33,6 @@ services:
       - db
     env_file:
       - ./.env/.local
-    volumes:
-      - 'rudderstack_app_data:/rudderstack-api'
     networks:
       - rudderstack_network
 
@@ -49,7 +46,9 @@ services:
       - "3000:3000"
     env_file:
       - ./.env/.local
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     volumes:
-      - 'rudderstack_app_data:/rudderstack-app'
+      - './:/app'
     networks:
       - rudderstack_network

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	models "rudderstack/internal/api/v1/models"
 	repositories "rudderstack/internal/api/v1/repositories"
@@ -89,14 +90,14 @@ func (c *EventController) CreateEventHandler(ctx *gin.Context) {
 		return
 	}
 
-	eventRule, err := c.repo.GetEventRuleByName(eventRequestBody.Name)
+	eventRules, err := c.repo.GetEventRulesByName(eventRequestBody.Name)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	if err := utils.ValidateJSON(eventRule.Rules, eventRequestBody.Properties); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if len(eventRules) == 0 {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest,
+			gin.H{"error": fmt.Sprintf("No Event rules found for '%s'", eventRequestBody.Name)})
 		return
 	}
 
@@ -105,14 +106,24 @@ func (c *EventController) CreateEventHandler(ctx *gin.Context) {
 		Properties: eventRequestBody.Properties,
 	}
 
-	eventTracking := &models.EventTracking{
-		EventRuleID: eventRule.ID,
+	for _, eventRule := range eventRules {
+		if err := utils.ValidateJSON(eventRule.Rules, eventRequestBody.Properties); err != nil {
+			ctx.AbortWithStatusJSON(http.StatusBadRequest,
+				gin.H{"error": fmt.Sprintf("Error while vaildating event rule %s. %s", eventRule.Name, err.Error())})
+			return
+		}
+
+		eventTracking := &models.EventTracking{
+			EventRuleID: eventRule.ID,
+		}
+
+		if err := c.repo.CreateEvent(event, eventTracking); err != nil {
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError,
+				gin.H{"error": fmt.Sprintf("Error Creating Event for event rule: %s. %s", eventRule.Name, err.Error())})
+			return
+		}
 	}
 
-	if err := c.repo.CreateEvent(event, eventTracking); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
 	ctx.JSON(http.StatusCreated, gin.H{"message": "Event created successfully", "data": event})
 }
 
@@ -135,28 +146,30 @@ func (c *EventController) UpdateEventHandler(ctx *gin.Context) {
 		return
 	}
 
-	eventRule, err := c.repo.GetEventRuleByName(eventRequestBody.Name)
+	eventRules, err := c.repo.GetEventRulesByName(eventRequestBody.Name)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	for _, eventRule := range eventRules {
+		if err := utils.ValidateJSON(eventRule.Rules, eventRequestBody.Properties); err != nil {
+			ctx.AbortWithStatusJSON(http.StatusBadRequest,
+				gin.H{"error": fmt.Sprintf("Error while vaildating event rule %s. %s", eventRule.Name, err.Error())})
+			return
+		}
 
-	if err := utils.ValidateJSON(eventRule.Rules, eventRequestBody.Properties); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+		updatedEvent := &models.Event{
+			ID:         eventId,
+			Name:       eventRequestBody.Name,
+			Properties: eventRequestBody.Properties,
+			CreatedAt:  event.CreatedAt,
+			UpdatedAt:  time.Now(),
+		}
 
-	updatedEvent := &models.Event{
-		ID:         eventId,
-		Name:       eventRequestBody.Name,
-		Properties: eventRequestBody.Properties,
-		CreatedAt:  event.CreatedAt,
-		UpdatedAt:  time.Now(),
+		if err := c.repo.UpdateEvent(updatedEvent); err != nil {
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 	}
-
-	if err := c.repo.UpdateEvent(updatedEvent); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Event updated successfully", "data": updatedEvent})
+	ctx.JSON(http.StatusOK, gin.H{"message": "Event updated successfully"})
 }

@@ -1,88 +1,76 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button } from 'react-bootstrap';
+import { Table } from 'react-bootstrap';
 import { getAllTrackingPlans, getTrackingPlan } from "../../api/trackingplans"
-import EventRulesModal from './EventRulesModal';
+import EventRulesOffCanvas from './EventRulesOffCanvas';
+import Pagination from '../Pagination';
 
 const TrackingPlanTable = () => {
-    const [trackingPlans, setTrackingPlans] = useState([]);
-    const [showModal, setShowModal] = useState(false);
-    const [trackingPlanDetail, setTrackingPlanDetail] = useState([]);
-  
-    const handleShowEventRules = async (id) => {
-      if (trackingPlanDetail.length > 0 && trackingPlanDetail[0].tracking_plan_id === id) {
-        return;
-      }
-      const eventRules = await getTrackingPlan(id);
-      setTrackingPlanDetail(eventRules.rules)
-      setShowModal(true);
-    };
+  const [trackingPlans, setTrackingPlans] = useState([]);
+  const [selectedPlanId, setSelectedPlanId] = useState(null);
+  const [trackingPlanDetail, setTrackingPlanDetail] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(-1);
 
-    useEffect(() => {
-        fetchTrackingPlans();
-    }, []);
+  const [plansPerPage] = useState(5);
 
-    const fetchTrackingPlans = async () => {
-        let trackingplans = await getAllTrackingPlans();
-        setTrackingPlans(trackingplans.items)
-    };
+  useEffect(() => {
+	fetchTrackingPlans();
+  }, [currentPage]);
 
-    return (
-        <Table>
-            <thead>
-                <tr>
-                    <th>S no.</th>
-                    <th>Display Name</th>
-                    <th>Description</th>
-                    <th>Event Rules</th>
-                </tr>
-            </thead>
-            <tbody>
-                {trackingPlans.map((plan) => (
-                <tr key={plan.id}>
-                    <td>{plan.id}</td>
-                    <td>{plan.display_name}</td>
-                    <td>{plan.description}</td>
-                    <td>
-                    {/* <Button onClick={handleShowEventRules}>Click me!</Button> */}
-                    <Button onClick={() => handleShowEventRules(plan.id)}>Click me!</Button>
-                    <EventRulesModal
-                        showModal={showModal}
-                        onHide={() => setShowModal(false)}
-                        trackingPlanDetail={trackingPlanDetail}
-                    />
-                    {/* <Button onClick={(e)=> {e.preventDefault(); handleShowEventRules(plan.id)}}>Click me!</Button> */}
-                    {/* <Accordion>
-                        <Accordion.Collapse>
-                            <Card>
-                                <Card.Body>
-                                    <Table>
-                                        <thead>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Name</th>
-                                                <th>Description</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {trackingPlanDetail.map((rule) => (
-                                            <tr key={rule.id}>
-                                                <td>{rule.id}</td>
-                                                <td>{rule.name}</td>
-                                                <td>{rule.description}</td>
-                                            </tr>
-                                            ))}
-                                        </tbody>
-                                    </Table>
-                                </Card.Body>
-                            </Card>
-                        </Accordion.Collapse>
-                    </Accordion> */}
-                    </td>
-                </tr>
-                ))}
-            </tbody>
-        </Table>
-    );
+  const fetchTrackingPlans = async () => {
+	let trackingplans = await getAllTrackingPlans(currentPage, plansPerPage)
+	const tp = Math.ceil(trackingplans.pagination.total / plansPerPage);
+	if(totalPages === -1)
+	  setTotalPages(tp)
+	setTrackingPlans(trackingplans.items)
+  };
+
+  const handleShowEventRules = async (id) => {
+	setSelectedPlanId(id);
+	const eventRules = await getTrackingPlan(id);
+	setTrackingPlanDetail(eventRules.rules)
+  };
+
+  const onHideEventRulesOffCanvas = () => {
+	setSelectedPlanId(null);
+	setTrackingPlanDetail([]);
+  }
+
+  return (
+	<>
+	  <Table>
+		<thead>
+		  <tr>
+			<th>S no.</th>
+			<th>Display Name</th>
+			<th>Description</th>
+		  </tr>
+		</thead>
+		<tbody>
+		  {trackingPlans.map((plan, i) => (
+			<tr key={plan.id} onClick={() => handleShowEventRules(plan.id)} className="tableRowPointer">
+			  <td>{(currentPage-1)*plansPerPage + i+1}</td>
+			  <td>{plan.display_name}</td>
+			  <td>{plan.description}</td>
+			</tr>
+		  ))}
+		</tbody>
+	  </Table>
+	  <Pagination
+		currentPage={currentPage}
+		totalPages={totalPages}
+		onChangePage={setCurrentPage}
+	  />
+	  {selectedPlanId && (
+		<EventRulesOffCanvas
+		  show={true}
+		  onHide={onHideEventRulesOffCanvas}
+		  trackingPlanDetail={trackingPlanDetail}
+		/>
+	  )}
+
+	</>
+  );
 };
 
 export default TrackingPlanTable;

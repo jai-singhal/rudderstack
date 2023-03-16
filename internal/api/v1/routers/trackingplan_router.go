@@ -14,9 +14,9 @@ func RegisterTrackingPlanRoutes(routerGroup *gin.RouterGroup, db *gorm.DB) {
 
 	trackingPlanRoutes := routerGroup
 	{
-		trackingPlanRoutes.GET("/", trackingPlanController.GetAllTrackingPlansHandler)
+		trackingPlanRoutes.GET("", trackingPlanController.GetAllTrackingPlansHandler)
 
-		trackingPlanRoutes.POST("/", trackingPlanController.CreateTrackingPlanHandler)
+		trackingPlanRoutes.POST("", trackingPlanController.CreateTrackingPlanHandler)
 		trackingPlanRoutes.GET("/:id", trackingPlanController.GetTrackingPlanHandler)
 		trackingPlanRoutes.PUT("/:id", trackingPlanController.UpdateTrackingPlanHandler)
 	}

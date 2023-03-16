@@ -74,13 +74,14 @@ func (r *EventRepository) GetAllEventsByEventRule(name string, limit, offset int
 }
 
 // GetEventRuleByName retrieves a single Event rule by event name from the repository.
-func (r *EventRepository) GetEventRuleByName(eventName string) (*models.EventRule, error) {
-	eventRule := new(models.EventRule)
-	result := r.db.Model(eventRule).Where("name = ?", eventName).First(&eventRule)
+func (r *EventRepository) GetEventRulesByName(eventName string) ([]*models.EventRule, error) {
+	eventRules := make([]*models.EventRule, 0)
+
+	result := r.db.Model(models.EventRule{}).Where("name = ?", eventName).Find(&eventRules)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return eventRule, fmt.Errorf("No event rule found for name '%s'", eventName)
+		return eventRules, fmt.Errorf("No event rule found for name '%s'", eventName)
 	}
-	return eventRule, result.Error
+	return eventRules, result.Error
 }
 
 // CreateEvent adds a new event to the repository.
