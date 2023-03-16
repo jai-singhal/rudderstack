@@ -1,13 +1,14 @@
-import React from 'react';
+import {React, useEffect} from 'react';
 import TrackingPlan from '../components/trackingplan/TrackingPlan';
 
 const Home = () => {
-  // page content
-  return (
-    <div>
-      <TrackingPlan />
-    </div>
-  )
+	useEffect(() => {
+		document.title = 'Rudderstack Tracking Plan';
+	}, []);
+
+  	return (
+		<TrackingPlan />
+	)
 }
 
 export default Home

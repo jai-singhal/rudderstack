@@ -9,21 +9,21 @@ import (
 )
 
 type ServerConfig struct {
-	Port int    `yaml:"port"`
-	Mode string `yaml:"mode"`
+	Port int    `json:"port"`
+	Mode string `json:"mode"`
 }
 
 type DatabaseConfig struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
-	Name     string `yaml:"name"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	User     string `json:"user"`
+	Password string `json:"password"`
+	Name     string `json:"name"`
 }
 
 type Config struct {
-	Server   ServerConfig   `yaml:"server"`
-	Database DatabaseConfig `yaml:"database"`
+	Server   ServerConfig   `json:"server"`
+	Database DatabaseConfig `json:"database"`
 }
 
 func LoadConfig() (*Config, error) {

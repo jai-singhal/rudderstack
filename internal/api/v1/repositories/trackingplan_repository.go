@@ -12,7 +12,6 @@ type TrackingPlanRepository struct {
 	db *gorm.DB
 }
 
-// NewRepository creates a new tracking plan repository
 func NewTrackingPlanRepository(db *gorm.DB) *TrackingPlanRepository {
 	return &TrackingPlanRepository{db}
 }
@@ -42,6 +41,16 @@ func (r *TrackingPlanRepository) GetEventRulesByTrackingPlanId(tracking_plan_id 
 	return eventRules, result.Error
 }
 
+func (r *TrackingPlanRepository) CheckEventRuleExists(name string) bool {
+	eventRule := new(models.EventRule)
+
+	result := r.db.Model(&models.EventRule{}).Where("name = ?", name).First(&eventRule)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return false
+	}
+	return true
+}
+
 func (r *TrackingPlanRepository) GetTrackingPlanByID(id int64) (*models.TrackingPlan, error) {
 	trackingPlan := new(models.TrackingPlan)
 	result := r.db.Table(trackingPlan.TableName()).Where("id = ?", id).First(&trackingPlan)
@@ -62,6 +71,7 @@ func (r *TrackingPlanRepository) CreateTrackingPlan(trackingPlan *models.Trackin
 
 	for _, eventRule := range eventRules {
 		eventRule.TrackingPlanID = trackingPlan.ID
+
 		if err := tx.Table(eventRule.TableName()).Create(eventRule).Error; err != nil {
 			tx.Rollback()
 			return err
@@ -70,6 +80,7 @@ func (r *TrackingPlanRepository) CreateTrackingPlan(trackingPlan *models.Trackin
 
 	// Commit the transaction if all operations succeed
 	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
 		return err
 	}
 	return nil

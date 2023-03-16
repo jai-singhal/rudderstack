@@ -17,7 +17,6 @@ func RegisterEventRoutes(routerGroup *gin.RouterGroup, db *gorm.DB) {
 		eventRoutes.GET("", eventController.GetAllEventsHandler)
 		eventRoutes.POST("", eventController.CreateEventHandler)
 		eventRoutes.GET("/:id", eventController.GetEventHandler)
-
 		eventRoutes.PUT("/:id", eventController.UpdateEventHandler)
 
 	}

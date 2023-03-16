@@ -9,12 +9,10 @@ import (
 	"gorm.io/gorm"
 )
 
-// EventRepository is a concrete implementation of EventRepository using GORM.
 type EventRepository struct {
 	db *gorm.DB
 }
 
-// NewEventRepository CreateEvents a new instance of the EventRepository.
 func NewEventRepository(db *gorm.DB) *EventRepository {
 	return &EventRepository{db: db}
 }
@@ -35,26 +33,6 @@ func (r *EventRepository) GetAllEvents(limit, offset int) ([]*models.Event, int6
 	return events, total, nil
 }
 
-// GetEventByID retrieves a single event by ID from the repository.
-func (r *EventRepository) GetEventByID(id int64) (*models.Event, error) {
-	event := new(models.Event)
-	result := r.db.First(&event, id)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return event, fmt.Errorf("No event rule found for name %d", id)
-	}
-	return event, result.Error
-}
-
-// GetEventByName retrieves a single event by name from the repository.
-func (r *EventRepository) GetEventByName(name string) (*models.Event, error) {
-	event := new(models.Event)
-	result := r.db.Table(event.TableName()).Where("name = ?", name).First(&event)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return event, fmt.Errorf("No event rule found for name '%s'", name)
-	}
-	return event, result.Error
-}
-
 // GetEventByName retrieves a single event by name from the repository.
 func (r *EventRepository) GetAllEventsByEventRule(name string, limit, offset int) ([]*models.Event, int64, error) {
 	events := make([]*models.Event, 0)
@@ -71,6 +49,26 @@ func (r *EventRepository) GetAllEventsByEventRule(name string, limit, offset int
 		return nil, total, err
 	}
 	return events, total, nil
+}
+
+// GetEventByID retrieves a single event by ID from the repository.
+func (r *EventRepository) GetEventByID(id int64) (*models.Event, error) {
+	event := new(models.Event)
+	result := r.db.First(&event, id)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return event, fmt.Errorf("No event rule found for id %d", id)
+	}
+	return event, result.Error
+}
+
+// GetEventByID retrieves a single event by ID from the repository.
+func (r *EventRepository) GetEventByName(name string) (*models.Event, error) {
+	event := new(models.Event)
+	result := r.db.First(&event, name)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("No event rule found for name %s", name)
+	}
+	return event, result.Error
 }
 
 // GetEventRuleByName retrieves a single Event rule by event name from the repository.
@@ -103,6 +101,7 @@ func (r *EventRepository) CreateEvent(event *models.Event, eventTracking *models
 
 	// Commit the transaction if all operations succeed
 	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
 		return err
 	}
 	return nil

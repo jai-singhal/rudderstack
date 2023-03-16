@@ -59,25 +59,28 @@ const TrackingPlanCreateModal = ({show, onHide, onSubmit}) => {
   		};
 
   		try {
-			const {error, result}  = await createTrackingPlan(data);
-			if (error) {
-                setError(error.error);
-                return false;
-            }
-			onHide();
-			onSubmit(data);
-			setName('');
-            setError(null)
-			setDescription('');
-			setEventsData([{
-				name: '',
-				description: '',
-				rules: '',
-			}, ]);
+  			const {
+  				error,
+  				result
+  			} = await createTrackingPlan(data);
+  			if (error) {
+  				setError(error.error);
+  				return false;
+  			}
+  			onHide();
+  			onSubmit(data);
+  			setName('');
+  			setError(null)
+  			setDescription('');
+  			setEventsData([{
+  				name: '',
+  				description: '',
+  				rules: '',
+  			}, ]);
   		} catch (error) {
-			console.error(error);
-            setError('An error occurred '+ error);
-            return false;
+  			console.error(error);
+  			setError('An error occurred ' + error);
+  			return false;
   		}
   	}
   };
@@ -151,7 +154,7 @@ const TrackingPlanCreateModal = ({show, onHide, onSubmit}) => {
 
 				<br/>
 				<br/>
-    			<Button type="submit" className="float-end">Submit</Button>
+    			<Button type="submit" className="float-end">Add</Button>
     		</Form>
     	</Modal.Body>
     </Modal>

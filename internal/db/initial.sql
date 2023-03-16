@@ -12,13 +12,12 @@ CREATE TABLE IF NOT EXISTS tracking_plans (
 CREATE TABLE IF NOT EXISTS event_rules (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   tracking_plan_id BIGINT NOT NULL,
-  name VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NOT NULL UNIQUE,
   description TEXT,
   rules JSON NOT NULL,
 
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  UNIQUE (tracking_plan_id, name),
   FOREIGN KEY (tracking_plan_id) REFERENCES tracking_plans(id) ON DELETE CASCADE
 );
 

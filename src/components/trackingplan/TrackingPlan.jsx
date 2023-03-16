@@ -6,7 +6,6 @@ import EventCreateModal from './EventModal'
 import { Container, Button } from 'react-bootstrap';
 
 const TrackingPlan = () => {
-  // page content
   const pageTitle = 'Tracking Plan'
   const pageDescription = 'Create your new Tracking Plan'
   const [showModal, setShowModal] = useState(false);

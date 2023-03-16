@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	models "rudderstack/internal/api/v1/models"
@@ -103,6 +104,14 @@ func (c *TrackingPlanController) CreateTrackingPlanHandler(ctx *gin.Context) {
 	if err := c.repo.CheckTrackingPlanExists(trackingPlan); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	for _, eventRule := range eventRules {
+		if exists := c.repo.CheckEventRuleExists(eventRule.Name); exists == true {
+			ctx.AbortWithStatusJSON(http.StatusBadRequest,
+				gin.H{"error": fmt.Sprintf("Event rule '%s' already exists.", eventRule.Name)})
+			return
+		}
 	}
 
 	if err := c.repo.CreateTrackingPlan(trackingPlan, eventRules); err != nil {

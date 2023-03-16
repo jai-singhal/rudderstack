@@ -36,7 +36,7 @@ func main() {
 	exposedHeaders := handlers.ExposedHeaders([]string{"Authorization"})
 	allowCredentials := handlers.AllowCredentials()
 
-	// // Start server
+	// Start server
 	port := cfg.Server.Port
 	fmt.Printf("Server listening on port %d...\n", port)
 

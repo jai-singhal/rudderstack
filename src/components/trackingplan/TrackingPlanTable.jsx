@@ -14,26 +14,26 @@ const TrackingPlanTable = () => {
   const [plansPerPage] = useState(5);
 
   useEffect(() => {
-	fetchTrackingPlans();
+  	fetchTrackingPlans();
   }, [currentPage]);
 
   const fetchTrackingPlans = async () => {
-	let trackingplans = await getAllTrackingPlans(currentPage, plansPerPage)
-	const tp = Math.ceil(trackingplans.pagination.total / plansPerPage);
-	if(totalPages === -1)
-	  setTotalPages(tp)
-	setTrackingPlans(trackingplans.items)
+  	let trackingplans = await getAllTrackingPlans(currentPage, plansPerPage)
+  	const tp = Math.ceil(trackingplans.pagination.total / plansPerPage);
+  	if (totalPages === -1)
+  		setTotalPages(tp)
+  	setTrackingPlans(trackingplans.items)
   };
 
   const handleShowEventRules = async (id) => {
-	setSelectedPlanId(id);
-	const eventRules = await getTrackingPlan(id);
-	setTrackingPlanDetail(eventRules.rules)
+  	setSelectedPlanId(id);
+  	const eventRules = await getTrackingPlan(id);
+  	setTrackingPlanDetail(eventRules.rules)
   };
 
   const onHideEventRulesOffCanvas = () => {
-	setSelectedPlanId(null);
-	setTrackingPlanDetail([]);
+  	setSelectedPlanId(null);
+  	setTrackingPlanDetail([]);
   }
 
   return (
@@ -68,7 +68,6 @@ const TrackingPlanTable = () => {
 		  trackingPlanDetail={trackingPlanDetail}
 		/>
 	  )}
-
 	</>
   );
 };
