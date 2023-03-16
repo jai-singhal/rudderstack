@@ -6,37 +6,37 @@ import Pagination from '../Pagination';
 import TrackingPlanModal from './TrackingPlanModal'
 
 const TrackingPlanTable = () => {
-  const [trackingPlans, setTrackingPlans] = useState([]);
-  const [selectedPlanId, setSelectedPlanId] = useState(null);
-  const [trackingPlanDetail, setTrackingPlanDetail] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(-1);
-  const [showTrackingPlanModalArr, setShowTrackingPlanModalArr] = useState(trackingPlans.map(() => false));
+	const [trackingPlans, setTrackingPlans] = useState([]);
+	const [selectedPlanId, setSelectedPlanId] = useState(null);
+	const [trackingPlanDetail, setTrackingPlanDetail] = useState([]);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [totalPages, setTotalPages] = useState(-1);
+	const [showTrackingPlanModalArr, setShowTrackingPlanModalArr] = useState(trackingPlans.map(() => false));
 
-  const [plansPerPage] = useState(5);
+	const [plansPerPage] = useState(5);
 
-  useEffect(() => {
-  	fetchTrackingPlans();
-  }, [currentPage]);
+	useEffect(() => {
+		fetchTrackingPlans();
+	}, [currentPage]);
 
-  const fetchTrackingPlans = async () => {
-  	let trackingplans = await getAllTrackingPlans(currentPage, plansPerPage)
-  	const tp = Math.ceil(trackingplans.pagination.total / plansPerPage);
-  	if (totalPages === -1)
-  		setTotalPages(tp)
-  	setTrackingPlans(trackingplans.items)
-  };
+	const fetchTrackingPlans = async () => {
+		let trackingplans = await getAllTrackingPlans(currentPage, plansPerPage)
+		const tp = Math.ceil(trackingplans.pagination.total / plansPerPage);
+		if (totalPages === -1)
+			setTotalPages(tp)
+		setTrackingPlans(trackingplans.items)
+	};
 
-  const handleShowEventRules = async (id) => {
-  	setSelectedPlanId(id);
-  	const eventRules = await getTrackingPlan(id);
-  	setTrackingPlanDetail(eventRules.events)
-  };
+	const handleShowEventRules = async (id) => {
+		setSelectedPlanId(id);
+		const eventRules = await getTrackingPlan(id);
+		setTrackingPlanDetail(eventRules.events)
+	};
 
-  const onHideEventRulesOffCanvas = () => {
-  	setSelectedPlanId(null);
-  	setTrackingPlanDetail([]);
-  }
+	const onHideEventRulesOffCanvas = () => {
+		setSelectedPlanId(null);
+		setTrackingPlanDetail([]);
+	}
 
   return (
 	<>

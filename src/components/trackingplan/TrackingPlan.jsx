@@ -6,15 +6,15 @@ import EventCreateModal from './EventModal'
 import { Container, Button } from 'react-bootstrap';
 
 const TrackingPlan = () => {
-  const pageTitle = 'Tracking Plan'
-  const pageDescription = 'Create your new Tracking Plan'
-  const [showModal, setShowModal] = useState(false);
-  const [showCreateEventModal, setShowCreateEventModal] = useState(false);
-  const [tableKey, setTableKey] = useState(0);
-  
-  const refreshTable = () => {
-    setTableKey(prevKey => prevKey + 1);
-  }
+	const pageTitle = 'Tracking Plan'
+	const pageDescription = 'Create your new Tracking Plan'
+	const [showModal, setShowModal] = useState(false);
+	const [showCreateEventModal, setShowCreateEventModal] = useState(false);
+	const [tableKey, setTableKey] = useState(0);
+
+	const refreshTable = () => {
+		setTableKey(prevKey => prevKey + 1);
+	}
   
   return (
     <div>
