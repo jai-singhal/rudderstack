@@ -30,6 +30,7 @@ const TrackingPlanModal = ({show, onHide, onSubmit, isUpdate = false, trackingPl
 					description: event.description,
 					rules: JSON.stringify(event.rules, null, 4)
 				})
+				return event;
 			})
 			setEventsData(eventsdata);
 		})

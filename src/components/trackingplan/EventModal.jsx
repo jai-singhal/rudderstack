@@ -27,7 +27,8 @@ function EventCreateModal({
         };
 
         try {
-            const {error, _} = await createEvent(data);
+            const {error, result} = await createEvent(data);
+            console.log(result)
             if (error) {
                 setError(error.error);
                 return false;
